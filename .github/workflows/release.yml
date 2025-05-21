@@ -1,18 +1,51 @@
--name: Build & Release
--
--on:
--  push:
--    tags:
--      - 'v*'
-+name: Build & Release
-+
-+on:
-+  release:
-+    types: [published]
+# .github/workflows/release.yml
 
- jobs:
-   build_and_release:
-     runs-on: windows-latest
-     steps:
-       - uses: actions/checkout@v3
-       # … (ขั้นตอนอื่น ๆ เหมือนเดิม) …
+name: Build & Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build_and_release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller
+
+      - name: Build standalone EXE
+        run: |
+          pyinstaller --onefile --windowed main.py --name PostureCareAnalyzer
+
+      - name: Package source into ZIP
+        run: |
+          powershell -Command "Compress-Archive -Path main.py,modules,README.md,requirements.txt -DestinationPath PostureCareAnalyzer_Source.zip"
+
+      - id: create_release
+        name: Create GitHub Release (if missing)
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          name: Release ${{ github.event.release.tag_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload built assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/PostureCareAnalyzer.exe
+            PostureCareAnalyzer_Source.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
