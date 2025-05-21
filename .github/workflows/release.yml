@@ -1,10 +1,10 @@
 # .github/workflows/release.yml
 name: Build & Release
 
-# ⚠️ เพิ่มตรงนี้เพื่อให้ token สามารถสร้าง/อัปเดต release ได้
+# 🚨 ให้ GITHUB_TOKEN มีสิทธิ์สร้าง/อัปเดต Release
 permissions:
-  contents: read     # สำหรับ checkout รหัส
-  releases: write    # สำหรับ action-gh-release เขียน release
+  contents: read     # เพื่อ actions/checkout
+  releases: write    # เพื่อ softprops/action-gh-release
 
 on:
   release:
@@ -17,9 +17,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
-      - name: List working directory
-        run: dir
 
       - name: Setup Python
         uses: actions/setup-python@v4
