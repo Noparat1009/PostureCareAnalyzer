@@ -3,8 +3,8 @@ name: Build & Release
 
 # ⚠️ เพิ่มตรงนี้เพื่อให้ token สามารถสร้าง/อัปเดต release ได้
 permissions:
-  contents: read     # สำหรับ checkout
-  releases: write    # สำหรับ action-gh-release
+  contents: read     # สำหรับ checkout รหัส
+  releases: write    # สำหรับ action-gh-release เขียน release
 
 on:
   release:
