@@ -1,4 +1,10 @@
+# .github/workflows/release.yml
 name: Build & Release
+
+# ⚠️ เพิ่มตรงนี้เพื่อให้ token สามารถสร้าง/อัปเดต release ได้
+permissions:
+  contents: read     # สำหรับ checkout
+  releases: write    # สำหรับ action-gh-release
 
 on:
   release:
@@ -11,6 +17,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: List working directory
+        run: dir
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -27,12 +36,11 @@ jobs:
           pyinstaller --onefile --windowed main.py --name PostureCareAnalyzer
 
       - name: Package source into ZIP
-        shell: pwsh
         run: |
-          Compress-Archive -Path main.py,modules,README.md,requirements.txt -DestinationPath PostureCareAnalyzer_Source.zip
+          powershell -Command "Compress-Archive -Path main.py,modules,README.md,requirements.txt -DestinationPath PostureCareAnalyzer_Source.zip"
 
       - id: create_release
-        name: Create GitHub Release (if missing)
+        name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.event.release.tag_name }}
